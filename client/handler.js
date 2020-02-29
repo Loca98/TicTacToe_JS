@@ -13,6 +13,8 @@ var btnLogin = document.getElementById('btnLogin');
 
 var loginDiv = document.getElementById('loginDiv');
 var lobbyDiv = document.getElementById('lobbyDiv');
+var btnSfida = document.getElementById('btnSfida');
+var slct = document.getElementById('slct');
 
 //Emit events
 btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
@@ -28,6 +30,20 @@ btnSign.addEventListener('click' , function(){ //assegno evento al bottone
         signPwd: signPwd.value,
     });
 });
+
+btnSfida.addEventListener('click' , function(){
+    if(select.selectedIndex >= 0){
+        var strUser = slct.options[slct.selectedIndex].value;
+        socket.emit('reqSfida', { //passo nome dell'evento 'signup' e parametri da inviare
+            opponentName: strUser,
+            senderName: username,
+        });
+        alert('RICHIESTA INVIATA ATTENDERE RISPOSTA');
+    }
+    else
+        alert("SELEZIONARE UTENTE");
+});
+
 
 //List for events
 socket.on('login', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
@@ -56,7 +72,8 @@ socket.on('signup', function(data){ //dalle socket prendo quella con evento 'sig
 //LOBBY DIV
 var btnsfida = document.getElementById('btnsfida');
 var select = document.getElementById("slct");
-var table = document.getElementById("ranking");
+var tableRanking = document.getElementById("ranking");
+
 
 //UPDATE USER ONLINE LIST
 socket.on('updateList', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
@@ -80,9 +97,12 @@ socket.on('updateList', function(data){ //dalle socket prendo quella con evento 
 socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
     var rows = data.rows;
     var numberRow =  - 1;
+    var tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";// pulisco tbody
     if(data.status) {
+
         for (i = 0; i < rows.length; i++) {
-            var row = table.insertRow(numberRow)
+            var row = tbody.insertRow(numberRow)
             var rank = row.insertCell(numberRow);
             var name =  row.insertCell(numberRow);
             var win =  row.insertCell(numberRow);
@@ -99,4 +119,15 @@ socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'lo
         alert("Errore Caricamento Classifica");
     };
 
+});
+
+//Ricezione SFIDA
+socket.on('reqSfida', function(data){
+    alert("TI SFIDA : " + data.opponentName);
+    /*var sfida = confirm("TI SFIDA : "+ data.opponentName + "ACCETTI ?");
+    if (sfida == true) {
+        //alert("Bravo");
+    } else {
+        //alert("Bravo");
+    }*/
 });

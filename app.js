@@ -50,7 +50,6 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             delete socketList[socket.id];
             console.log("Guest Disconnesso");
         }
-        ;
         if (socket.id in onlineUser) {
             console.log("Utene: " + onlineUser[socket.id].username + " Disconnesso");
             delete onlineUser[socket.id];
@@ -117,6 +116,18 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         });
     });
 
+    //RICHIESTA SFIDA UN UTENTE
+    socket.on('reqSfida', function (data) {
+        for (var key in onlineUser) {
+            if (onlineUser[key].username == data.opponentName) { //invio richiesta a specifico client
+                onlineUser[key].userSocket.emit('reqSfida', {
+                    opponentName: data.senderName,
+                    reciverName: data.opponentName,
+                });
+            }
+        }
+    });
+
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
         onlineUser[userSocket.id] = {
@@ -142,7 +153,8 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         });
     }
 
-    function getRanking() {
+    //COMUNICA CLASSIFICA DOPO LOGIN, REGISTRAZIONE;
+    function getRanking() { //TODO: POSSO USARE UNO STATUS PER INDICARE SE PER TUTTI
         connection.query("SELECT * FROM SCORE order by win,draw",function (error, rows, field) {
             if (error) {
                 console.log('Error in the Query');
