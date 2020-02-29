@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="en" >
+
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="shortcut icon" type="image/x-icon" href="clapper.png" />
+    <meta charset="UTF-8">
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="/client/login.css">
+    <link rel="stylesheet" href="/client/lobby.css">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js'></script>
+</head>
+
+<body>
+<div class="form" id="loginDiv">
+
+    <ul class="tab-group">
+        <li class="tab active"><a href="#signup">Sign Up</a></li>
+        <li class="tab"><a href="#login">Log In</a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div id="signup">
+            <h1>Sign Up Tic Tac Toe</h1>
+
+            <form action="/" method="get">
+
+                 <div class="field-wrap">
+                     <label>
+                         Username<span class="req">*</span>
+                     </label>
+                     <input id="signUsername" type="text"required autocomplete="off"/>
+                 </div>
+
+                 <div class="field-wrap">
+                     <label>
+                         Set a Password<span class="req">*</span>
+                     </label>
+                     <input id="signPwd" type="password"required autocomplete="off"/>
+                 </div>
+
+                 <button id="btnSign" type="button" class="button button-block"/>Get Started</button>
+
+             </form>
+
+        </div>
+
+        <div id="login">
+            <h1>Welcome Back!</h1>
+
+            <form action="/" method="get">
+
+                <div class="field-wrap">
+                    <label>
+                        Username<span class="req">*</span>
+                    </label>
+                    <input id="logUsername" type="username"required autocomplete="off"/>
+                </div>
+
+                <div class="field-wrap">
+                    <label>
+                        Password<span class="req">*</span>
+                    </label>
+                    <input id="logPwd" type="password"required autocomplete="off"/>
+                </div>
+                <button id="btnLogin" type="button" class="button button-block"/>Log In</button>
+            </form>
+        </div>
+    </div><!-- tab-content -->
+</div> <!-- /form -->
+
+<div id="lobbyDiv" class="row" style="display:none;">
+        <div class="column" style="background-color:#aaa;">
+            <header>
+                <h1 style="text-align:center">SFIDA QUALCUNO</h1>
+            </header>
+            <div class="column">
+                <div class="container">
+                    <div class="select">
+                        <select name="slct" id="slct" size="2">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="column" style="text-align:center">
+                <button id="btnSfida" type="button" class="myButton">SFIDA</button>
+            </div>
+        </div>
+
+        <div class="column" style="background-color:#bbb;">
+
+            <header>
+                <h1 style="text-align:center">CLASSIFICA TIC TAC TOE</h1>
+            </header>
+            <div class="wrapper">
+                <table id ="ranking">
+                    <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Win</th>
+                        <th>Draw</th>
+                        <th>Lose</th>
+                    </tr>
+                    </thead>
+                    <tbody id=tableBody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</div>
+</body>
+
+</div>
+</body>
+
+<script src="/client/login.js"></script>
+<script src="/client/handler.js"></script>
