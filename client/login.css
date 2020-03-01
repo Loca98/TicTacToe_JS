@@ -8,10 +8,10 @@ html {
     overflow-y: scroll;
 }
 
-body {
+/*body {
     background: #c1bdba;
     font-family: "Titillium Web", sans-serif;
-}
+}*/
 
 a {
     text-decoration: none;
@@ -69,7 +69,7 @@ a:hover {
     display: none;
 }
 
-h1 {
+.h1Login {
     text-align: center;
     color: #ffffff;
     font-weight: 300;

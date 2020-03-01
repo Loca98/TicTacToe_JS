@@ -110,6 +110,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                                     username: data.signUsername,
                                 });
                                 addUserOnline(data.signUsername, socket)
+                                getRanking();
                             }
                         });
                     }
@@ -140,11 +141,10 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             var nameRoom = getNameRoom();
             for (var key in onlineUser) {
                 if (key == data.senderName || key == data.reciverName){
-                    console.log("JOIN: " + data.senderName + " " + data.reciverName)
-                    joinRoom(nameRoom, onlineUser[key].userSocket);
+                    //console.log("JOIN: " + data.senderName + " " + data.reciverName)
+                    onlineUser[key].userSocket.join(nameRoom);
                 }
             }
-            console.log(io.sockets.adapter.rooms)
             io.to(nameRoom).emit('inizialize', {
                 roomName: nameRoom,
                 simbolo: data.senderName, // COLUI CHE HA INIZIATO LA SFIDA AVRA' X
@@ -160,17 +160,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             setUserStatus(data.senderName); //UTENTE NON IMPEGNATO
             getList();
         }
-
-        //console.log(io.sockets.adapter.rooms['room'].socket.id);
-        //console.log(io.sockets.manager.rooms[socket.id]);
-        /*io.sockets.clients(someRoom).forEach(function(s){
-            s.leave(someRoom);
-        })*/
     });
-
-    function joinRoom(roomName, socketUser){
-        socketUser.join(roomName);
-    }
 
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
@@ -227,9 +217,10 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         }
     }
 
+    //TODO deallocare quando room non c'è più a fine partita if nome == key in io.sockets.adapter.rooms
     function getNameRoom(){
         if(roomName.length > 0){
-            var newRoom = ""+ (parseInt(roomName[roomName.length - 1], 10) + 1);
+            var newRoom = ""+ (parseInt(roomName[roomName.length - 1], 10) + 1); //Aumento di 1 la stanza
             roomName.push(newRoom);
         }
         else {

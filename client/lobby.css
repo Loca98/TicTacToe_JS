@@ -19,20 +19,20 @@
     overflow: hidden;
 }
 
-table {
+.tableLobby {
     border-collapse: collapse;
     width: 100%;
     background: #fff;
 }
 
 th {
-    background-color: #326295;
+    background-color: #24485e;
     font-weight: bold;
     color: #fff;
     white-space: nowrap;
 }
 
-td,
+.tdLobby,
 th {
     padding: 1em 1.5em;
     text-align: left;

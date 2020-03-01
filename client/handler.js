@@ -14,7 +14,13 @@ var btnLogin = document.getElementById('btnLogin');
 var loginDiv = document.getElementById('loginDiv');
 var lobbyDiv = document.getElementById('lobbyDiv');
 var btnSfida = document.getElementById('btnSfida');
-var slct = document.getElementById('slct');
+
+//LOBBY DIV
+var select = document.getElementById("slct");
+var tableRanking = document.getElementById("ranking");
+
+//GAME DIV
+var gameDiv = document.getElementById("gameDiv");
 
 //Emit events
 btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
@@ -33,7 +39,7 @@ btnSign.addEventListener('click' , function(){ //assegno evento al bottone
 
 btnSfida.addEventListener('click' , function(){
     if(select.selectedIndex >= 0){
-        var strUser = slct.options[slct.selectedIndex].value;
+        var strUser = select.options[select.selectedIndex].value;
         socket.emit('reqSfida', { //passo nome dell'evento 'signup' e parametri da inviare
             reciverName: strUser,
             senderName: username,
@@ -67,11 +73,6 @@ socket.on('signup', function(data){ //dalle socket prendo quella con evento 'sig
         alert("USERNAME GIA' ESISTENTE");
     };
 });
-
-//LOBBY DIV
-var btnsfida = document.getElementById('btnsfida');
-var select = document.getElementById("slct");
-var tableRanking = document.getElementById("ranking");
 
 //UPDATE USER ONLINE LIST
 socket.on('updateList', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
@@ -140,6 +141,8 @@ socket.on('inizialize', function(data){
     if(data.esito)
     {
         alert("Sfida Accettata Nella stanza : "+ data.roomName);
+        lobbyDiv.style.display = 'none';
+        gameDiv.style.display = 'inline';
     }
     else
         alert("Sfida non Accettata");
