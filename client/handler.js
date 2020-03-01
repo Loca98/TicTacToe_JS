@@ -44,7 +44,6 @@ btnSfida.addEventListener('click' , function(){
         alert("SELEZIONARE UTENTE");
 });
 
-
 //List for events
 socket.on('login', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
     if(data.status) {
@@ -73,7 +72,6 @@ socket.on('signup', function(data){ //dalle socket prendo quella con evento 'sig
 var btnsfida = document.getElementById('btnsfida');
 var select = document.getElementById("slct");
 var tableRanking = document.getElementById("ranking");
-
 
 //UPDATE USER ONLINE LIST
 socket.on('updateList', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
@@ -139,5 +137,11 @@ socket.on('reqSfida', function(data){
 
 //INIZIALIZZAZIONE GIOCO
 socket.on('inizialize', function(data){
-    alert(data.simbolo);
+    if(data.esito)
+    {
+        alert("Sfida Accettata Nella stanza : "+ data.roomName);
+    }
+    else
+        alert("Sfida non Accettata");
+    //TODO salvare nome della room e se username uguale a quello passato avrò la X altrimenti O
 });

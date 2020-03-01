@@ -5,7 +5,7 @@ var socket = require('socket.io');
 var mysql = require('mysql');
 var socketList = {};
 var onlineUser = {};
-
+var roomName = [];
 //App setup
 var app = express(); // Applicazione express
 var server = app.listen(3000, function(){
@@ -130,7 +130,6 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                     senderName: data.senderName,
                     reciverName: data.reciverName,
                 });
-                socket.join('room');
             }
         }
     });
@@ -138,18 +137,32 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     //SE SI ACCETTA LA SFIDA SI ENTRA NELLA STESSA ROOM
     socket.on('respSfida', function (data) {
         if(data.esito == true) {
+            var nameRoom = getNameRoom();
             for (var key in onlineUser) {
-                if (key == data.senderName || key == data.reciverName)
+                if (key == data.senderName || key == data.reciverName){
                     console.log("JOIN: " + data.senderName + " " + data.reciverName)
-                joinRoom('room', onlineUser[key].userSocket);
+                    joinRoom(nameRoom, onlineUser[key].userSocket);
+                }
             }
-            io.to('room').emit('inizialize', {
-                simbolo: "X",
+            console.log(io.sockets.adapter.rooms)
+            io.to(nameRoom).emit('inizialize', {
+                roomName: nameRoom,
+                simbolo: data.senderName, // COLUI CHE HA INIZIATO LA SFIDA AVRA' X
+                esito:true, //Nel client controllerò che la sfida è stata accettata
             });
         }
-        else
-            console.log("rifiuto");
+        else {
+            onlineUser[data.senderName].userSocket.emit('inizialize', {
+                esito: false, //Nel client controllerò che la sfida è stata accettata
+            });
+            //RIMETTERE UTENTI DISPONIBILI
+            setUserStatus(data.reciverName); //UTENTE NON IMPEGNATO
+            setUserStatus(data.senderName); //UTENTE NON IMPEGNATO
+            getList();
+        }
 
+        //console.log(io.sockets.adapter.rooms['room'].socket.id);
+        //console.log(io.sockets.manager.rooms[socket.id]);
         /*io.sockets.clients(someRoom).forEach(function(s){
             s.leave(someRoom);
         })*/
@@ -190,7 +203,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             if (error) {
                 console.log('Error in the Query');
             } else {
-                console.log('Success Query');
+                //console.log('Success Query');
                 //console.log(rows);
                 if (rows.length > 0) {
                     io.sockets.emit('ranking', {
@@ -212,6 +225,18 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                 onlineUser[key].status = !onlineUser[key].status; //UTENTE IMPEGNATO
             }
         }
+    }
+
+    function getNameRoom(){
+        if(roomName.length > 0){
+            var newRoom = ""+ (parseInt(roomName[roomName.length - 1], 10) + 1);
+            roomName.push(newRoom);
+        }
+        else {
+            newRoom = "1";
+            roomName.push(newRoom);
+        }
+        return newRoom;
     }
 });
 
