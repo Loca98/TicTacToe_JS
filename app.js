@@ -53,7 +53,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         if (socket.id in onlineUser) {
             console.log("Utene: " + onlineUser[socket.id].username + " Disconnesso");
             delete onlineUser[socket.id];
-            getList(onlineUser);
+            getList();
         }
     });
 
@@ -119,31 +119,50 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     //RICHIESTA SFIDA UN UTENTE
     socket.on('reqSfida', function (data) {
         for (var key in onlineUser) {
-            if (onlineUser[key].username == data.opponentName) { //invio richiesta a specifico client
+            if (onlineUser[key].username == data.reciverName) { //invio richiesta a specifico client
+                setUserStatus(data.reciverName); //UTENTE IMPEGNATO
+                setUserStatus(data.senderName); //UTENTE IMPEGNATO
+                getList(); //Aggiorno lista
                 onlineUser[key].userSocket.emit('reqSfida', {
-                    opponentName: data.senderName,
-                    reciverName: data.opponentName,
+                    senderName: data.senderName,
+                    reciverName: data.reciverName,
                 });
             }
         }
     });
+
+  /*  socket.on('respSfida', function (data) {
+        for (var key in onlineUser) {
+            if (onlineUser[key].username == data.reciverName) { //invio richiesta a specifico client
+                setUserStatus(data.reciverName); //UTENTE IMPEGNATO
+                setUserStatus(data.senderName); //UTENTE IMPEGNATO
+                getList(); //Aggiorno lista
+                onlineUser[key].userSocket.emit('reqSfida', {
+                    senderName: data.senderName,
+                    reciverName: data.reciverName,
+                });
+            }
+        }
+    });*/
 
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
         onlineUser[userSocket.id] = {
             userSocket: userSocket,
             username: username,
+            status: false, //Utilizzato per controllare se utente non impegnato
         };
         console.log("UTENTI ONLINE: " + Object.keys(onlineUser).length);
-        getList(onlineUser); // Invia Lista Utenti
+        getList(); // Invia Lista Utenti
     }
 
-    //COMUNICA AI CLIENT LA NUOVA LISTA DI UTENTI ONLINE
-    function getList(onlineUser) {
+    //COMUNICA AI CLIENT LA NUOVA LISTA DI UTENTI ONLINE NON IMPEGNATI
+    function getList() {
         var list = [];
 
         for (var key in onlineUser) {
-            if (onlineUser.hasOwnProperty(key)) {
+            if (onlineUser.hasOwnProperty(key) && onlineUser[key].status == false ) { //Se status==false allora non è impegnato
+                console.log("AGGIUNTO: "+onlineUser[key].username );
                 list.push(onlineUser[key].username);
             }
         }
@@ -175,6 +194,13 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         });
     }
 
+    function setUserStatus(nameuser){
+        for (var key in onlineUser) {
+            if (onlineUser[key].username == nameuser) { //invio richiesta a specifico client
+                onlineUser[key].status = !onlineUser[key].status; //UTENTE IMPEGNATO
+            }
+        }
+    }
 });
 
 

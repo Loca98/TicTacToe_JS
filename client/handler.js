@@ -35,7 +35,7 @@ btnSfida.addEventListener('click' , function(){
     if(select.selectedIndex >= 0){
         var strUser = slct.options[slct.selectedIndex].value;
         socket.emit('reqSfida', { //passo nome dell'evento 'signup' e parametri da inviare
-            opponentName: strUser,
+            reciverName: strUser,
             senderName: username,
         });
         alert('RICHIESTA INVIATA ATTENDERE RISPOSTA');
@@ -79,16 +79,14 @@ var tableRanking = document.getElementById("ranking");
 socket.on('updateList', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
     var list = JSON.parse(data.userList);
 
-    for (i = 0; i < list.length; i++) {
-        select.options.remove(i);
-    }
+    select.innerHTML = "";// pulisco select
 
     for (i = 0; i < list.length; i++) {
-        if(list[i] !== username) { //Controllo di non aggiungere ul nome del seguente utente
+        if(list[i] != username) { //Controllo di non aggiungere il nome del seguente utente
             var option = document.createElement("option");
             option.text = list[i];
             option.value = list[i];
-            select.add(option)
+            select.add(option);
         }
     }
 });
@@ -123,11 +121,16 @@ socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'lo
 
 //Ricezione SFIDA
 socket.on('reqSfida', function(data){
-    alert("TI SFIDA : " + data.opponentName);
-    /*var sfida = confirm("TI SFIDA : "+ data.opponentName + "ACCETTI ?");
+    var sfida = window.confirm('TI SFIDA : '+ data.senderName + ', ACCETTI ?');
+    var esito;
     if (sfida == true) {
-        //alert("Bravo");
+        esito = true;
     } else {
-        //alert("Bravo");
-    }*/
+        esito = false;
+    }
+    socket.emit('respSfida', { //Rispondo alla sfida
+        reciverName: data.reciverName,
+        senderName: data.senderName,
+        esito: esito,
+    });
 });
