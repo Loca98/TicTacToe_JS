@@ -50,10 +50,12 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             delete socketList[socket.id];
             console.log("Guest Disconnesso");
         }
-        if (socket.id in onlineUser) {
-            console.log("Utene: " + onlineUser[socket.id].username + " Disconnesso");
-            delete onlineUser[socket.id];
-            getList();
+        for (var key in onlineUser) {
+            if (onlineUser[key].userSocket.id == socket.id) {
+                console.log("Utene: " + key + " Disconnesso");
+                delete onlineUser[key];
+                getList();
+            }
         }
     });
 
@@ -119,37 +121,48 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     //RICHIESTA SFIDA UN UTENTE
     socket.on('reqSfida', function (data) {
         for (var key in onlineUser) {
-            if (onlineUser[key].username == data.reciverName) { //invio richiesta a specifico client
+            if (key == data.reciverName) { //invio richiesta a specifico client
                 setUserStatus(data.reciverName); //UTENTE IMPEGNATO
                 setUserStatus(data.senderName); //UTENTE IMPEGNATO
+                console.log("SFIDANTI: "+ data.reciverName + data.senderName)
                 getList(); //Aggiorno lista
                 onlineUser[key].userSocket.emit('reqSfida', {
                     senderName: data.senderName,
                     reciverName: data.reciverName,
                 });
+                socket.join('room');
             }
         }
     });
 
-  /*  socket.on('respSfida', function (data) {
-        for (var key in onlineUser) {
-            if (onlineUser[key].username == data.reciverName) { //invio richiesta a specifico client
-                setUserStatus(data.reciverName); //UTENTE IMPEGNATO
-                setUserStatus(data.senderName); //UTENTE IMPEGNATO
-                getList(); //Aggiorno lista
-                onlineUser[key].userSocket.emit('reqSfida', {
-                    senderName: data.senderName,
-                    reciverName: data.reciverName,
-                });
+    //SE SI ACCETTA LA SFIDA SI ENTRA NELLA STESSA ROOM
+    socket.on('respSfida', function (data) {
+        if(data.esito == true) {
+            for (var key in onlineUser) {
+                if (key == data.senderName || key == data.reciverName)
+                    console.log("JOIN: " + data.senderName + " " + data.reciverName)
+                joinRoom('room', onlineUser[key].userSocket);
             }
+            io.to('room').emit('inizialize', {
+                simbolo: "X",
+            });
         }
-    });*/
+        else
+            console.log("rifiuto");
+
+        /*io.sockets.clients(someRoom).forEach(function(s){
+            s.leave(someRoom);
+        })*/
+    });
+
+    function joinRoom(roomName, socketUser){
+        socketUser.join(roomName);
+    }
 
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
-        onlineUser[userSocket.id] = {
+        onlineUser[username] = {
             userSocket: userSocket,
-            username: username,
             status: false, //Utilizzato per controllare se utente non impegnato
         };
         console.log("UTENTI ONLINE: " + Object.keys(onlineUser).length);
@@ -161,9 +174,8 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         var list = [];
 
         for (var key in onlineUser) {
-            if (onlineUser.hasOwnProperty(key) && onlineUser[key].status == false ) { //Se status==false allora non è impegnato
-                console.log("AGGIUNTO: "+onlineUser[key].username );
-                list.push(onlineUser[key].username);
+            if (onlineUser.hasOwnProperty(key) && onlineUser[key].status == false ) { //Se status==false allora non è impegnato;
+                list.push(key);
             }
         }
 
@@ -196,7 +208,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
 
     function setUserStatus(nameuser){
         for (var key in onlineUser) {
-            if (onlineUser[key].username == nameuser) { //invio richiesta a specifico client
+            if (key == nameuser) { //invio richiesta a specifico client
                 onlineUser[key].status = !onlineUser[key].status; //UTENTE IMPEGNATO
             }
         }

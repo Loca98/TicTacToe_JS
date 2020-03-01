@@ -1,5 +1,5 @@
 //Make connection
-var socket = io.connect('http://localhost:3000');
+var socket = io.connect('http://192.168.1.93:3000');
 var username ="" ;
 //REGISTRAZIONE E LOGIN
 //Query DOM
@@ -49,7 +49,7 @@ btnSfida.addEventListener('click' , function(){
 socket.on('login', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
     if(data.status) {
         username = data.username;
-        alert("LOGIN EFFETTUATO CON SUCCESSO");
+        //alert("LOGIN EFFETTUATO CON SUCCESSO");
         loginDiv.style.display = 'none';
         lobbyDiv.style.display = 'inline';
     } else {
@@ -100,7 +100,7 @@ socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'lo
     if(data.status) {
 
         for (i = 0; i < rows.length; i++) {
-            var row = tbody.insertRow(numberRow)
+            var row = tbody.insertRow(numberRow);
             var rank = row.insertCell(numberRow);
             var name =  row.insertCell(numberRow);
             var win =  row.insertCell(numberRow);
@@ -115,22 +115,29 @@ socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'lo
 
     } else {
         alert("Errore Caricamento Classifica");
-    };
-
+    }
 });
 
 //Ricezione SFIDA
 socket.on('reqSfida', function(data){
-    var sfida = window.confirm('TI SFIDA : '+ data.senderName + ', ACCETTI ?');
+    /*var sfida =  window.confirm('TI SFIDA : '+ data.senderName + ', ACCETTI ?');
     var esito;
     if (sfida == true) {
         esito = true;
     } else {
         esito = false;
-    }
+    }*/
+    //TODO RIMETTERE RICHIESTA
+    esito = true;
+
     socket.emit('respSfida', { //Rispondo alla sfida
         reciverName: data.reciverName,
         senderName: data.senderName,
         esito: esito,
     });
+});
+
+//INIZIALIZZAZIONE GIOCO
+socket.on('inizialize', function(data){
+    alert(data.simbolo);
 });
