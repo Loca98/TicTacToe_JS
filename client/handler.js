@@ -21,7 +21,9 @@ var tableRanking = document.getElementById("ranking");
 
 //GAME DIV
 var gameDiv = document.getElementById("gameDiv");
-//simbolo = "X";
+var simbolo = "";
+var roomName;
+var turno;
 
 //Emit events
 btnLogin.addEventListener('click' , function(){ //assegno evento al bottone

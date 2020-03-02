@@ -162,6 +162,10 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         }
     });
 
+    socket.on('mossa', function (data) {
+        io.to(data.roomName).emit('mossa', data);
+    });
+
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
         onlineUser[username] = {

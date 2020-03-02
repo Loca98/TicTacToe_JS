@@ -8,10 +8,6 @@ var c6 = document.getElementById("c6");
 var c7 = document.getElementById("c7");
 var c8 = document.getElementById("c8");
 
-var simbolo = "";
-var roomName;
-var turno;
-
 function addRed(cell){
     cell.addEventListener('mouseover', function(event) {
         if(cell.textContent !== "X" && cell.textContent !== "O"){
@@ -32,38 +28,52 @@ function addClick(cell){
     cell.addEventListener('click', function(event) {
         if(cell.textContent !== "X" && cell.textContent !== "O") {
             if (turno == true) {
-                cell.style.backgroundColor = "#268";
+                turno = false;
+                socket.emit('mossa', { //passo nome dell'evento 'signup' e parametri da inviare
+                    roomName: roomName,
+                    idCella: cell.id,
+                    simbolo: simbolo,
+                });
+                /*cell.style.backgroundColor = "#268";
                 cell.innerHTML = simbolo;
-                clearAll();
+                clearAll();*/
             } else
                 alert("NON E' IL TUO TURNO");
         }
     });
 }
 
+socket.on('mossa', function(data){
+    myCella = document.getElementById(data.idCella);
+    myCella.style.backgroundColor = "#268";
+    myCella.innerHTML = data.simbolo;
+    if(data.simbolo !== simbolo)
+        turno = true;
+});
+
 //PULISCE LA CELLA
 function clear(cell){
-    cell.style.backgroundColor = "#268"
-    cell.innerHTML = "";
+cell.style.backgroundColor = "#268"
+cell.innerHTML = "";
 }
 
 //PULISCE LA TABELLA ALLA FINE DELLA PARTITA
 function clearAll(){
 
-    if(c0.textContent == "" || c1.textContent == "" || c2.textContent == "" || c3.textContent == "" || c4.textContent == "" || c5.textContent == "" || c6.textContent == "" || c7.textContent == "" || c8.textContent == "" )
-    {
-    }
-    else {
-        clear(c0);
-        clear(c1);
-        clear(c2);
-        clear(c3);
-        clear(c4);
-        clear(c5);
-        clear(c6);
-        clear(c7);
-        clear(c8);
-    }
+if(c0.textContent == "" || c1.textContent == "" || c2.textContent == "" || c3.textContent == "" || c4.textContent == "" || c5.textContent == "" || c6.textContent == "" || c7.textContent == "" || c8.textContent == "" )
+{
+}
+else {
+clear(c0);
+clear(c1);
+clear(c2);
+clear(c3);
+clear(c4);
+clear(c5);
+clear(c6);
+clear(c7);
+clear(c8);
+}
 
 }
 
