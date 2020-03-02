@@ -24,6 +24,7 @@ var gameDiv = document.getElementById("gameDiv");
 var simbolo = "";
 var roomName;
 var turno;
+var opponent;
 
 //Emit events
 btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
@@ -146,16 +147,18 @@ socket.on('inizialize', function(data){
         alert("Sfida Accettata Nella stanza : "+ data.roomName);
         lobbyDiv.style.display = 'none';
         gameDiv.style.display = 'inline';
-        if(data.simbolo == username){ //SCELTA DEL SIMBOLO E PRIMO TURNO
+        if(data.senderName == username){ //SCELTA DEL SIMBOLO E PRIMO TURNO
             simbolo = "X";
             turno = true;
+            opponent = data.reciverName;
         }
         else{
             simbolo = "O";
             turno = false;
+            opponent = data.senderName;
         }
         roomName = data.roomName;
-
+        document.getElementById("avversario").innerHTML = "Avversario : " + opponent ;
     }
     else
         alert("Sfida non Accettata");

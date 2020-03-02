@@ -147,8 +147,9 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             }
             io.to(nameRoom).emit('inizialize', {
                 roomName: nameRoom,
-                simbolo: data.senderName, // COLUI CHE HA INIZIATO LA SFIDA AVRA' X
                 esito:true, //Nel client controllerò che la sfida è stata accettata
+                reciverName: data.reciverName,
+                senderName: data.senderName,  // COLUI CHE HA INIZIATO LA SFIDA AVRA' X
             });
         }
         else {//SFIDA NON ACCETTATA
@@ -164,6 +165,19 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
 
     socket.on('mossa', function (data) {
         io.to(data.roomName).emit('mossa', data);
+    });
+
+    //ASSEGNAMO PUNTEGGIO E TOLGO DALLA ROOM
+    socket.on('winner', function (data) {
+        console.log(data.winner);
+        if(data.winner == "draw")
+        {
+            //ASSEGNARE PAREGGIO AD ENTRAMBI
+        }else{
+            //ASSEGNO VITTORIA A Winner e sconfitta all'altro
+        }
+        setUserStatus(data.player1);
+        setUserStatus(data.player2);
     });
 
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
@@ -192,7 +206,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     }
 
     //COMUNICA CLASSIFICA DOPO LOGIN, REGISTRAZIONE;
-    function getRanking() { //TODO: POSSO USARE UNO STATUS PER INDICARE SE PER TUTTI
+    function getRanking() { //TODO: POSSO USARE UNO STATUS PER INDICARE SE INVIARE A TUTTI
         connection.query("SELECT * FROM SCORE order by win,draw",function (error, rows, field) {
             if (error) {
                 console.log('Error in the Query');

@@ -8,6 +8,8 @@ var c6 = document.getElementById("c6");
 var c7 = document.getElementById("c7");
 var c8 = document.getElementById("c8");
 
+var check = ""; //Per il tris
+
 function addRed(cell){
     cell.addEventListener('mouseover', function(event) {
         if(cell.textContent !== "X" && cell.textContent !== "O"){
@@ -26,10 +28,10 @@ function addBlue(cell){
 
 function addClick(cell){
     cell.addEventListener('click', function(event) {
-        if(cell.textContent !== "X" && cell.textContent !== "O") {
-            if (turno == true) {
+        if(cell.textContent == "") {//SE CELLA VUOTA
+            if (turno == true && check =="") {//SE TURNO E NESSUNO HA FATTO TRIS
                 turno = false;
-                socket.emit('mossa', { //passo nome dell'evento 'signup' e parametri da inviare
+                socket.emit('mossa', {
                     roomName: roomName,
                     idCella: cell.id,
                     simbolo: simbolo,
@@ -47,9 +49,73 @@ socket.on('mossa', function(data){
     myCella = document.getElementById(data.idCella);
     myCella.style.backgroundColor = "#268";
     myCella.innerHTML = data.simbolo;
-    if(data.simbolo !== simbolo)
+
+    if(data.simbolo !== simbolo){
         turno = true;
+    }
+    checkWinner();
 });
+
+function checkDraw() {
+    //CONTROLLO PAREGGIO
+    if(check == "" && c0.textContent !== "" && c1.textContent !== "" && c2.textContent !== "" && c3.textContent !== "" && c4.textContent !== "" && c5.textContent !== "" && c6.textContent !== "" && c7.textContent !== "" && c8.textContent !== "" ){
+        check = "draw";
+    }
+}
+
+function checkTris(){
+    //CONTROLLO TRIS
+    if(c0.textContent !== "" && c0.textContent == c1.textContent && c1.textContent == c2.textContent){
+        check = c0.textContent;
+    }else if(c3.textContent !== "" && c3.textContent == c4.textContent && c4.textContent == c5.textContent) {
+        check = c3.textContent;
+    }else if(c6.textContent !== "" && c6.textContent == c7.textContent && c7.textContent == c8.textContent){
+        check = c6.textContent;
+    }else if(c0.textContent !== "" && c0.textContent == c3.textContent && c3.textContent == c6.textContent){
+        check = c0.textContent;
+    }else if(c1.textContent !== "" && c1.textContent == c4.textContent && c4.textContent == c7.textContent){
+        check = c1.textContent;
+    }else if(c2.textContent !== "" && c2.textContent == c5.textContent && c5.textContent == c8.textContent){
+        check = c2.textContent;
+    }else if(c0.textContent !== "" && c0.textContent == c4.textContent && c4.textContent == c8.textContent){
+        check = c0.textContent;
+    }else if(c2.textContent !== "" && c2.textContent == c4.textContent && c4.textContent == c6.textContent){
+        check = c2.textContent;
+    }
+}
+
+function checkWinner(){
+    checkTris();
+    checkDraw();
+    if(check !== ""){
+        if(check == simbolo){
+            check = username;
+            alert("COMPLIMENTI HA VINTO !!! ");
+        }
+        else if(check == "draw"){
+            check = opponent;
+            alert("PAREGGIO !!! ");
+        }
+        else if(check !== simbolo){
+            alert("PECCATO HAI PERSO !!! ");
+        }
+        clearAll();
+        if(turno == true){ //SE QUALCUNO HA FATTO TRIS INVIO UNA SOCKET
+            socket.emit('winner', {
+                winner: check,
+                roomName: roomName,
+                player1: opponent,
+                player2: username,
+            });
+
+            //RESET VARIABILI
+            check="";
+            opponent="";
+            turno = false;
+            roomName="";
+        }
+    }
+}
 
 //PULISCE LA CELLA
 function clear(cell){
@@ -61,18 +127,18 @@ cell.innerHTML = "";
 function clearAll(){
 
 if(c0.textContent == "" || c1.textContent == "" || c2.textContent == "" || c3.textContent == "" || c4.textContent == "" || c5.textContent == "" || c6.textContent == "" || c7.textContent == "" || c8.textContent == "" )
-{
-}
+{}
 else {
-clear(c0);
-clear(c1);
-clear(c2);
-clear(c3);
-clear(c4);
-clear(c5);
-clear(c6);
-clear(c7);
-clear(c8);
+    //TODO: RIMETTERE DIV LOBBY, SOCKET PER CLASSIFICA VEDERE CHI LA INVIA E NEL SERVER LASCIARE LA ROOM
+    clear(c0);
+    clear(c1);
+    clear(c2);
+    clear(c3);
+    clear(c4);
+    clear(c5);
+    clear(c6);
+    clear(c7);
+    clear(c8);
 }
 
 }
