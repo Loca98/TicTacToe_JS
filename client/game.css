@@ -35,23 +35,6 @@ body {
     transition-duration: 0.4s;
 }
 
-.cellHover {
-    opacity: 0.6;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.cellBlue{
-    opacity: 1;
-    background-color: #2AAFC7;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.cellRed {
-    opacity: 1;
-    background-color: #FF6059;
-    color: rgba(255, 255, 255, 0.9);
-}
-
 .modal-container {
     position: absolute;
     left: 50%;

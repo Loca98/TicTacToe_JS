@@ -21,6 +21,7 @@ var tableRanking = document.getElementById("ranking");
 
 //GAME DIV
 var gameDiv = document.getElementById("gameDiv");
+//simbolo = "X";
 
 //Emit events
 btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
@@ -143,6 +144,16 @@ socket.on('inizialize', function(data){
         alert("Sfida Accettata Nella stanza : "+ data.roomName);
         lobbyDiv.style.display = 'none';
         gameDiv.style.display = 'inline';
+        if(data.simbolo == username){ //SCELTA DEL SIMBOLO E PRIMO TURNO
+            simbolo = "X";
+            turno = true;
+        }
+        else{
+            simbolo = "O";
+            turno = false;
+        }
+        roomName = data.roomName;
+
     }
     else
         alert("Sfida non Accettata");

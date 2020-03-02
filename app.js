@@ -151,7 +151,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                 esito:true, //Nel client controllerò che la sfida è stata accettata
             });
         }
-        else {
+        else {//SFIDA NON ACCETTATA
             onlineUser[data.senderName].userSocket.emit('inizialize', {
                 esito: false, //Nel client controllerò che la sfida è stata accettata
             });

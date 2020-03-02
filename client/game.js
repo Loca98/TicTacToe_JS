@@ -8,12 +8,14 @@ var c6 = document.getElementById("c6");
 var c7 = document.getElementById("c7");
 var c8 = document.getElementById("c8");
 
-var simbolo = "X"
+var simbolo = "";
+var roomName;
+var turno;
 
 function addRed(cell){
     cell.addEventListener('mouseover', function(event) {
         if(cell.textContent !== "X" && cell.textContent !== "O"){
-            cell.style.backgroundColor = "red"
+            cell.style.backgroundColor = "red";
         }
     });
 }
@@ -21,16 +23,21 @@ function addRed(cell){
 function addBlue(cell){
     cell.addEventListener('mouseout', function(event) {
         if(cell.textContent !== "X" && cell.textContent !== "O"){
-            cell.style.backgroundColor = "#268"
+           cell.style.backgroundColor = "#268";
         }
     });
 }
 
 function addClick(cell){
     cell.addEventListener('click', function(event) {
-        cell.style.backgroundColor = "#2688"
-        cell.innerHTML = simbolo;
-        clearAll();
+        if(cell.textContent !== "X" && cell.textContent !== "O") {
+            if (turno == true) {
+                cell.style.backgroundColor = "#268";
+                cell.innerHTML = simbolo;
+                clearAll();
+            } else
+                alert("NON E' IL TUO TURNO");
+        }
     });
 }
 
