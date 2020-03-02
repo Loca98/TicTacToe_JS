@@ -126,7 +126,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                 setUserStatus(data.reciverName); //UTENTE IMPEGNATO
                 setUserStatus(data.senderName); //UTENTE IMPEGNATO
                 console.log("SFIDANTI: "+ data.reciverName + data.senderName)
-                getList(); //Aggiorno lista
+                //getList(); //Aggiorno lista
                 onlineUser[key].userSocket.emit('reqSfida', {
                     senderName: data.senderName,
                     reciverName: data.reciverName,
@@ -159,16 +159,19 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             //RIMETTERE UTENTI DISPONIBILI
             setUserStatus(data.reciverName); //UTENTE NON IMPEGNATO
             setUserStatus(data.senderName); //UTENTE NON IMPEGNATO
-            getList();
+            //getList();
         }
     });
 
+    //MOSSA EFFETTUATA
     socket.on('mossa', function (data) {
         io.to(data.roomName).emit('mossa', data);
     });
 
-    //ASSEGNAMO PUNTEGGIO E TOLGO DALLA ROOM
+    //ASSEGNAMO PUNTEGGIO
     socket.on('winner', function (data) {
+        setUserStatus(data.player1);
+        setUserStatus(data.player2);
         console.log(data.winner);
         if(data.winner == "draw")
         {
@@ -176,9 +179,14 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         }else{
             //ASSEGNO VITTORIA A Winner e sconfitta all'altro
         }
-        setUserStatus(data.player1);
-        setUserStatus(data.player2);
+
     });
+
+    //AGGIUNGERE PAREGGIO
+    function addDraw(){}
+    //AGGIUNGERE VITTORIA
+    //AGGIUNGERE SCONFITTA
+
 
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
@@ -233,6 +241,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                 onlineUser[key].status = !onlineUser[key].status; //UTENTE IMPEGNATO
             }
         }
+        getList();
     }
 
     //TODO deallocare quando room non c'è più a fine partita if nome == key in io.sockets.adapter.rooms

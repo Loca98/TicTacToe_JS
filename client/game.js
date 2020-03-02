@@ -29,6 +29,7 @@ function addBlue(cell){
 function addClick(cell){
     cell.addEventListener('click', function(event) {
         if(cell.textContent == "") {//SE CELLA VUOTA
+            alert(turno);
             if (turno == true && check =="") {//SE TURNO E NESSUNO HA FATTO TRIS
                 turno = false;
                 socket.emit('mossa', {
@@ -97,6 +98,7 @@ function checkWinner(){
             alert("PAREGGIO !!! ");
         }
         else if(check !== simbolo){
+            check=opponent;
             alert("PECCATO HAI PERSO !!! ");
         }
         clearAll();
@@ -108,12 +110,16 @@ function checkWinner(){
                 player2: username,
             });
 
-            //RESET VARIABILI
-            check="";
-            opponent="";
-            turno = false;
-            roomName="";
+
         }
+        //RESET VARIABILI
+        check="";
+        opponent="";
+        turno = false;
+        roomName="";
+        simbolo="";
+        lobbyDiv.style.display = 'inline';
+        gameDiv.style.display = 'none';
     }
 }
 
@@ -125,10 +131,6 @@ cell.innerHTML = "";
 
 //PULISCE LA TABELLA ALLA FINE DELLA PARTITA
 function clearAll(){
-
-if(c0.textContent == "" || c1.textContent == "" || c2.textContent == "" || c3.textContent == "" || c4.textContent == "" || c5.textContent == "" || c6.textContent == "" || c7.textContent == "" || c8.textContent == "" )
-{}
-else {
     //TODO: RIMETTERE DIV LOBBY, SOCKET PER CLASSIFICA VEDERE CHI LA INVIA E NEL SERVER LASCIARE LA ROOM
     clear(c0);
     clear(c1);
@@ -139,8 +141,6 @@ else {
     clear(c6);
     clear(c7);
     clear(c8);
-}
-
 }
 
 
