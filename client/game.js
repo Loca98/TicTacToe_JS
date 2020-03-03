@@ -9,6 +9,7 @@ var c7 = document.getElementById("c7");
 var c8 = document.getElementById("c8");
 
 var check = ""; //Per il tris
+var result="";
 
 function addRed(cell){
     cell.addEventListener('mouseover', function(event) {
@@ -29,7 +30,6 @@ function addBlue(cell){
 function addClick(cell){
     cell.addEventListener('click', function(event) {
         if(cell.textContent == "") {//SE CELLA VUOTA
-            alert(turno);
             if (turno == true && check =="") {//SE TURNO E NESSUNO HA FATTO TRIS
                 turno = false;
                 socket.emit('mossa', {
@@ -91,19 +91,23 @@ function checkWinner(){
     if(check !== ""){
         if(check == simbolo){
             check = username;
+            result = "win";
             alert("COMPLIMENTI HA VINTO !!! ");
         }
         else if(check == "draw"){
             check = opponent;
+            result = "draw";
             alert("PAREGGIO !!! ");
         }
         else if(check !== simbolo){
             check=opponent;
+            result = "lose";
             alert("PECCATO HAI PERSO !!! ");
         }
         clearAll();
         if(turno == true){ //SE QUALCUNO HA FATTO TRIS INVIO UNA SOCKET
             socket.emit('winner', {
+                esito: result,
                 winner: check,
                 roomName: roomName,
                 player1: opponent,
@@ -120,6 +124,7 @@ function checkWinner(){
         simbolo="";
         lobbyDiv.style.display = 'inline';
         gameDiv.style.display = 'none';
+        result="";
     }
 }
 

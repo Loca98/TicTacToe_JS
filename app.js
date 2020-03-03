@@ -61,60 +61,65 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
 
     //RICHIESTA LOGIN
     socket.on('login', function (data) { //Appena mi arriva 'chat' eseguo callback passando data del client
-        connection.query("SELECT * FROM UTENTE WHERE name like '" + data.logUsername + "' AND pwd like '" + data.logPwd + "'", function (error, rows, field) {
-            if (error) {
-                console.log('Error in the Query');
-            } else {
-                console.log('Success Query');
-                //console.log(rows);
-                if (rows.length > 0) { //Controllo che non sia già loggato
-                    io.to(socket.id).emit('login', { //Rispondo a quella socket con evento login
-                        status: true,
-                        username: rows[0].name,
-                    });
-                    addUserOnline(rows[0].name, socket);
-                    getRanking();
-                } else {
-                    io.to(socket.id).emit('login', { //rispondo allo specifico client
-                        status: false,
-                    });
-                }
+        var online = false;
+        for (var key in onlineUser) {
+            if(data.logUsername == key){
+                online = true;
             }
-        });
+        }
+
+        if(!online) {
+            connection.query("SELECT * FROM UTENTE WHERE name like '" + data.logUsername + "' AND pwd like '" + data.logPwd + "'", function (error, rows, field) {
+                if (error) {
+                    console.log('Error in the Query');
+                } else {
+                    console.log('Success Query');
+                    //console.log(rows);
+                    if (rows.length > 0) { //Controllo che non sia già loggato
+                        io.to(socket.id).emit('login', { //Rispondo a quella socket con evento login
+                            status: true,
+                            username: rows[0].name,
+                        });
+                        addUserOnline(rows[0].name, socket);
+                        getRanking();
+                    } else {
+                        io.to(socket.id).emit('login', { //rispondo allo specifico client
+                            status: false,
+                            reason: "USERNAME O PASSWORD ERRATI",
+                        });
+                    }
+                }
+            });
+        } else {
+            io.to(socket.id).emit('login', { //rispondo allo specifico client
+                status: false,
+                reason: "UTENTE GIA ONLINE",
+            });
+        }
     });
 
     //RICHIESTA REGISTRAZIONE
     socket.on('signup', function (data) {
-        connection.beginTransaction(function (err) {
-            if (err) {
-                console.log("Errore Trasazione");
-            } else {
-                connection.query("INSERT INTO UTENTE (name, pwd) VALUES ('" + data.signUsername + "','" + data.signPwd + "')", function (err, rows, field) {
-                    if (err) {
-                        console.log("Errore Query");
-                        connection.rollback();
-                        io.to(socket.id).emit('signup', { //rispondo allo specifico client
-                            status: false,
-                        });
-                    } else {
-                        connection.commit(function (err) { //commit transazione
-                            if (err) {
-                                connection.rollback(function () {
-                                    console.log("Errore Commit");
-                                });
-                            } else {
-                                console.log('Success Query, Transaction Complete.');
-                                //connection.end();
-                                io.to(socket.id).emit('signup', { //Rispondo a quella socket con evento login
-                                    status: true,
-                                    username: data.signUsername,
-                                });
-                                addUserOnline(data.signUsername, socket)
-                                getRanking();
-                            }
-                        });
-                    }
+
+        connection.query("INSERT INTO UTENTE (name, pwd) VALUES ('" + data.signUsername + "','" + data.signPwd + "')", function (err, rows, field) {
+            if(err){
+                console.log(err);
+                io.to(socket.id).emit('signup', { //rispondo allo specifico client
+                    status: false,
                 });
+            }
+        });
+        connection.query(`INSERT INTO SCORE (userName, win, draw, defeat) VALUES ('${data.signUsername}',0,0,0);`, function (err, rows, field) {
+            if(err){
+                console.log(err);
+            }else{
+                console.log(data.signUsername);
+                io.to(socket.id).emit('signup', { //Rispondo a quella socket con evento login
+                    status: true,
+                    username: data.signUsername,
+                });
+                addUserOnline(data.signUsername,socket);
+                getRanking();
             }
         });
     });
@@ -172,21 +177,40 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     socket.on('winner', function (data) {
         setUserStatus(data.player1);
         setUserStatus(data.player2);
-        console.log(data.winner);
-        if(data.winner == "draw")
+        console.log(data.winner + data.esito);
+        if(data.esito == "draw")
         {
+            var query = "INSERT INTO SCORE (userName, win, draw, defeat) VALUES ('"+data.player1+"',0,0,0)";
+            updateDB(query);
+            updatePoints(data.player1, "draw");
+            updatePoints(data.player2, "draw");
             //ASSEGNARE PAREGGIO AD ENTRAMBI
         }else{
-            //ASSEGNO VITTORIA A Winner e sconfitta all'altro
+            if(data.winner == data.player1)
+            {
+                updatePoints(data.player1, "win");
+                updatePoints(data.player2, "defeat");
+            }
+            else{
+                updatePoints(data.player1, "defeat");
+                updatePoints(data.player2, "win");
+            }
         }
-
+        getRanking();
     });
 
     //AGGIUNGERE PAREGGIO
-    function addDraw(){}
-    //AGGIUNGERE VITTORIA
-    //AGGIUNGERE SCONFITTA
+    function updatePoints(username,result){
 
+        connection.query("UPDATE SCORE SET "+result+" = "+result+"+1  WHERE userName = '"+username+"'", function (err) {
+            if(err){
+                console.log(err);
+            }
+            else {
+                console.log('Punteggio Aggiornato');
+            }
+        });
+    }
 
     //AGGIUNGERE UTENTE ALLA LISTA UTENTI ONLINE DEL SEVER
     function addUserOnline(username, userSocket) {
@@ -215,19 +239,18 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
 
     //COMUNICA CLASSIFICA DOPO LOGIN, REGISTRAZIONE;
     function getRanking() { //TODO: POSSO USARE UNO STATUS PER INDICARE SE INVIARE A TUTTI
-        connection.query("SELECT * FROM SCORE order by win,draw",function (error, rows, field) {
+        connection.query("SELECT * FROM SCORE WHERE win != 0 OR draw != 0 OR defeat != 0" +
+            " ORDER BY SCORE.win DESC, SCORE.draw DESC, SCORE.defeat ASC",function (error, rows, field) {
             if (error) {
                 console.log('Error in the Query');
             } else {
-                //console.log('Success Query');
-                //console.log(rows);
                 if (rows.length > 0) {
                     io.sockets.emit('ranking', {
                         status: true,
                         rows: rows,
                     });
                 } else {
-                    io.sockets.emit(socket.id).emit('ranking', { //rispondo allo specifico client
+                    io.sockets.emit(socket.id).emit('ranking', {
                         status: false,
                     });
                 }
@@ -257,6 +280,3 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         return newRoom;
     }
 });
-
-
-

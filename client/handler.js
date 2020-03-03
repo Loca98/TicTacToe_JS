@@ -3,12 +3,8 @@ var socket = io.connect('http://192.168.1.93:3000');
 var username ="" ;
 //REGISTRAZIONE E LOGIN
 //Query DOM
-var signUsername = document.getElementById('signUsername');
-var signPwd = document.getElementById('signPwd');
 var btnSign = document.getElementById('btnSign');
 
-var logUsername = document.getElementById('logUsername');
-var logPwd = document.getElementById('logPwd');
 var btnLogin = document.getElementById('btnLogin');
 
 var loginDiv = document.getElementById('loginDiv');
@@ -28,21 +24,31 @@ var opponent;
 
 //Emit events
 btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
-    socket.emit('login', { //passo nome dell'evento 'login' e parametri da inviare
-        logUsername: logUsername.value,
-        logPwd: logPwd.value,
-    });
+    var logUsername = document.getElementById('logUsername');
+    var logPwd = document.getElementById('logPwd');
+    if(logUsername.value.trim() !== "" && logPwd.value.trim() !== "") {
+        socket.emit('login', { //passo nome dell'evento 'login' e parametri da inviare
+            logUsername: logUsername.value.trim(),
+            logPwd: logPwd.value.trim(),
+        });
+    }
 });
 
 btnSign.addEventListener('click' , function(){ //assegno evento al bottone
-    socket.emit('signup', { //passo nome dell'evento 'signup' e parametri da inviare
-        signUsername: signUsername.value,
-        signPwd: signPwd.value,
-    });
+    var signUsername = document.getElementById('signUsername');
+    var signPwd = document.getElementById('signPwd');
+    if(signUsername.value.trim() !== "" && signPwd.value.trim() !== ""){
+        socket.emit('signup', { //passo nome dell'evento 'signup' e parametri da inviare
+            signUsername: signUsername.value.trim(),
+            signPwd: signPwd.value.trim(),
+        });
+    }else
+        alert("RIEMPIERE I CAMPI CORRETTAMENTE !!!")
 });
 
 btnSfida.addEventListener('click' , function(){
     if(select.selectedIndex >= 0){
+        btnSfida.disabled = true;
         var strUser = select.options[select.selectedIndex].value;
         socket.emit('reqSfida', { //passo nome dell'evento 'signup' e parametri da inviare
             reciverName: strUser,
@@ -58,13 +64,11 @@ btnSfida.addEventListener('click' , function(){
 socket.on('login', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
     if(data.status) {
         username = data.username;
-        //alert("LOGIN EFFETTUATO CON SUCCESSO");
         loginDiv.style.display = 'none';
         lobbyDiv.style.display = 'inline';
     } else {
-        alert("USERNAME O PASSWORD ERRATI");
+        alert(data.reason);
     };
-
 });
 
 socket.on('signup', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
@@ -75,17 +79,16 @@ socket.on('signup', function(data){ //dalle socket prendo quella con evento 'sig
         lobbyDiv.style.display = 'inline';
     } else {
         alert("USERNAME GIA' ESISTENTE");
-    };
+    }
 });
 
 //UPDATE USER ONLINE LIST
 socket.on('updateList', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
     var list = JSON.parse(data.userList);
-
     select.innerHTML = "";// pulisco select
 
     for (i = 0; i < list.length; i++) {
-        if(list[i] != username) { //Controllo di non aggiungere il nome del seguente utente
+        if(list[i] !== username) { //Controllo di non aggiungere il nome del seguente utente
             var option = document.createElement("option");
             option.text = list[i];
             option.value = list[i];
@@ -123,15 +126,14 @@ socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'lo
 
 //Ricezione SFIDA
 socket.on('reqSfida', function(data){
-    /*var sfida =  window.confirm('TI SFIDA : '+ data.senderName + ', ACCETTI ?');
+    var sfida =  window.confirm('TI SFIDA : '+ data.senderName + ', ACCETTI ?');
     var esito;
     if (sfida == true) {
         esito = true;
     } else {
         esito = false;
-    }*/
-    //TODO RIMETTERE RICHIESTA
-    esito = true;
+    }
+    //esito = false;
 
     socket.emit('respSfida', { //Rispondo alla sfida
         reciverName: data.reciverName,
@@ -142,6 +144,7 @@ socket.on('reqSfida', function(data){
 
 //INIZIALIZZAZIONE GIOCO
 socket.on('inizialize', function(data){
+    btnSfida.disabled = false;
     if(data.esito)
     {
         alert("Sfida Accettata Nella stanza : "+ data.roomName);
@@ -162,5 +165,4 @@ socket.on('inizialize', function(data){
     }
     else
         alert("Sfida non Accettata");
-    //TODO salvare nome della room e se username uguale a quello passato avrò la X altrimenti O
 });

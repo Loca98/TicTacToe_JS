@@ -10,6 +10,10 @@
     margin: 0;
 }
 
+.lobbyTitle{
+    color: #ffffff ;
+}
+
 .wrapper {
     line-height: 1.5em;
     margin: 0 auto;
