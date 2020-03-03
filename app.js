@@ -3,9 +3,9 @@ console.log("Hello, i'm server"); //Stampa su console
 var express = require('express');
 var socket = require('socket.io');
 var mysql = require('mysql');
-var socketList = {};
-var onlineUser = {};
-var roomName = [];
+var socketList = {}; //LISTA DELLE SOCKET
+var onlineUser = {}; //LISTA UTENTI ONLINE
+var roomName = []; //LISTA NOMI DELLE ROOM
 //App setup
 var app = express(); // Applicazione express
 var server = app.listen(3000, function(){
@@ -50,7 +50,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             delete socketList[socket.id];
             console.log("Guest Disconnesso");
         }
-        for (var key in onlineUser) {
+        for (var key in onlineUser) { //TOLGO L'UTENTE DALLA LISTA ONLINE
             if (onlineUser[key].userSocket.id == socket.id) {
                 console.log("Utene: " + key + " Disconnesso");
                 delete onlineUser[key];
@@ -60,10 +60,10 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     });
 
     //RICHIESTA LOGIN
-    socket.on('login', function (data) { //Appena mi arriva 'chat' eseguo callback passando data del client
+    socket.on('login', function (data) {
         var online = false;
         for (var key in onlineUser) {
-            if(data.logUsername == key){
+            if(data.logUsername == key){ //CONTROLLO CHE L'USERNAME NON SIA GIA' LOGGATO
                 online = true;
             }
         }
@@ -130,8 +130,9 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             if (key == data.reciverName) { //invio richiesta a specifico client
                 setUserStatus(data.reciverName); //UTENTE IMPEGNATO
                 setUserStatus(data.senderName); //UTENTE IMPEGNATO
+                getList();
                 console.log("SFIDANTI: "+ data.reciverName + data.senderName)
-                //getList(); //Aggiorno lista
+
                 onlineUser[key].userSocket.emit('reqSfida', {
                     senderName: data.senderName,
                     reciverName: data.reciverName,
@@ -146,7 +147,6 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             var nameRoom = getNameRoom();
             for (var key in onlineUser) {
                 if (key == data.senderName || key == data.reciverName){
-                    //console.log("JOIN: " + data.senderName + " " + data.reciverName)
                     onlineUser[key].userSocket.join(nameRoom);
                 }
             }
@@ -154,7 +154,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
                 roomName: nameRoom,
                 esito:true, //Nel client controllerò che la sfida è stata accettata
                 reciverName: data.reciverName,
-                senderName: data.senderName,  // COLUI CHE HA INIZIATO LA SFIDA AVRA' X
+                senderName: data.senderName, // COLUI CHE HA INIZIATO LA SFIDA AVRA' X
             });
         }
         else {//SFIDA NON ACCETTATA
@@ -164,7 +164,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
             //RIMETTERE UTENTI DISPONIBILI
             setUserStatus(data.reciverName); //UTENTE NON IMPEGNATO
             setUserStatus(data.senderName); //UTENTE NON IMPEGNATO
-            //getList();
+            getList();
         }
     });
 
@@ -177,14 +177,12 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     socket.on('winner', function (data) {
         setUserStatus(data.player1);
         setUserStatus(data.player2);
+        getList();
         console.log(data.winner + data.esito);
-        if(data.esito == "draw")
+        if(data.esito == "draw")//ASSEGNARE PAREGGIO AD ENTRAMBI
         {
-            var query = "INSERT INTO SCORE (userName, win, draw, defeat) VALUES ('"+data.player1+"',0,0,0)";
-            updateDB(query);
             updatePoints(data.player1, "draw");
             updatePoints(data.player2, "draw");
-            //ASSEGNARE PAREGGIO AD ENTRAMBI
         }else{
             if(data.winner == data.player1)
             {
@@ -199,9 +197,8 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         getRanking();
     });
 
-    //AGGIUNGERE PAREGGIO
+    //AGGIORNARE PUNTEGGIO IN BASE AL RISULTATO DELLA PARTITA
     function updatePoints(username,result){
-
         connection.query("UPDATE SCORE SET "+result+" = "+result+"+1  WHERE userName = '"+username+"'", function (err) {
             if(err){
                 console.log(err);
@@ -237,7 +234,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         });
     }
 
-    //COMUNICA CLASSIFICA DOPO LOGIN, REGISTRAZIONE;
+    //COMUNICA CLASSIFICA
     function getRanking() { //TODO: POSSO USARE UNO STATUS PER INDICARE SE INVIARE A TUTTI
         connection.query("SELECT * FROM SCORE WHERE win != 0 OR draw != 0 OR defeat != 0" +
             " ORDER BY SCORE.win DESC, SCORE.draw DESC, SCORE.defeat ASC",function (error, rows, field) {
@@ -258,16 +255,17 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
         });
     }
 
+    //SETTARE STATUS DELL' UTENTE SE IMPEGNATO O NO
     function setUserStatus(nameuser){
         for (var key in onlineUser) {
-            if (key == nameuser) { //invio richiesta a specifico client
+            if (key == nameuser) { //CERCO L'UTENTE
                 onlineUser[key].status = !onlineUser[key].status; //UTENTE IMPEGNATO
             }
         }
-        getList();
+        //getList();
     }
 
-    //TODO deallocare quando room non c'è più a fine partita if nome == key in io.sockets.adapter.rooms
+    //SI OTTIENE IL NOME DELLA ROOM DIFFERENTE DALLE ALTRE
     function getNameRoom(){
         if(roomName.length > 0){
             var newRoom = ""+ (parseInt(roomName[roomName.length - 1], 10) + 1); //Aumento di 1 la stanza

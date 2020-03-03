@@ -1,29 +1,27 @@
 //Make connection
 var socket = io.connect('http://192.168.1.93:3000');
 var username ="" ;
-//REGISTRAZIONE E LOGIN
-//Query DOM
+
+//LOGIN REGISTRAZIONE DIV ELEMENT
 var btnSign = document.getElementById('btnSign');
-
 var btnLogin = document.getElementById('btnLogin');
-
 var loginDiv = document.getElementById('loginDiv');
 var lobbyDiv = document.getElementById('lobbyDiv');
-var btnSfida = document.getElementById('btnSfida');
 
-//LOBBY DIV
+//LOBBY DIV ELEMENT
 var select = document.getElementById("slct");
 var tableRanking = document.getElementById("ranking");
+var btnSfida = document.getElementById('btnSfida');
 
-//GAME DIV
+//GAME DIV ELEMENT
 var gameDiv = document.getElementById("gameDiv");
 var simbolo = "";
 var roomName;
 var turno;
 var opponent;
 
-//Emit events
-btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
+//EVENTI EMESSI AGLI ELEMENTI
+btnLogin.addEventListener('click',function(){ //assegno evento al bottone
     var logUsername = document.getElementById('logUsername');
     var logPwd = document.getElementById('logPwd');
     if(logUsername.value.trim() !== "" && logPwd.value.trim() !== "") {
@@ -34,7 +32,7 @@ btnLogin.addEventListener('click' , function(){ //assegno evento al bottone
     }
 });
 
-btnSign.addEventListener('click' , function(){ //assegno evento al bottone
+btnSign.addEventListener('click',function(){ //assegno evento al bottone
     var signUsername = document.getElementById('signUsername');
     var signPwd = document.getElementById('signPwd');
     if(signUsername.value.trim() !== "" && signPwd.value.trim() !== ""){
@@ -46,7 +44,7 @@ btnSign.addEventListener('click' , function(){ //assegno evento al bottone
         alert("RIEMPIERE I CAMPI CORRETTAMENTE !!!")
 });
 
-btnSfida.addEventListener('click' , function(){
+btnSfida.addEventListener('click',function(){
     if(select.selectedIndex >= 0){
         btnSfida.disabled = true;
         var strUser = select.options[select.selectedIndex].value;
@@ -60,7 +58,9 @@ btnSfida.addEventListener('click' , function(){
         alert("SELEZIONARE UTENTE");
 });
 
-//List for events
+//LISTA EVENTI IN ASCOLTO
+
+//EVENTO LOGIN
 socket.on('login', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
     if(data.status) {
         username = data.username;
@@ -71,6 +71,7 @@ socket.on('login', function(data){ //dalle socket prendo quella con evento 'logi
     };
 });
 
+//EVENTI REGISTRAZIONE
 socket.on('signup', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
     if(data.status) {
         username = data.username;
@@ -82,7 +83,7 @@ socket.on('signup', function(data){ //dalle socket prendo quella con evento 'sig
     }
 });
 
-//UPDATE USER ONLINE LIST
+//UPDATE LISTA USER ONLINE
 socket.on('updateList', function(data){ //dalle socket prendo quella con evento 'signup' e prendo i dati ricevuti
     var list = JSON.parse(data.userList);
     select.innerHTML = "";// pulisco select
@@ -97,7 +98,7 @@ socket.on('updateList', function(data){ //dalle socket prendo quella con evento 
     }
 });
 
-//Ranking
+//RICEZIONE RANKING
 socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'login' e prendo i dati ricevuti
     var rows = data.rows;
     var numberRow =  - 1;
@@ -124,7 +125,7 @@ socket.on('ranking', function(data){ //dalle socket prendo quella con evento 'lo
     }
 });
 
-//Ricezione SFIDA
+//RICEZIONE SFIDA
 socket.on('reqSfida', function(data){
     var sfida =  window.confirm('TI SFIDA : '+ data.senderName + ', ACCETTI ?');
     var esito;
