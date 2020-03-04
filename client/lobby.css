@@ -1,3 +1,29 @@
+.ulLobby {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+.liLobby {
+    float: left;
+}
+
+.aLobby {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.aLobby:hover {
+    background-color: #111;
+}
+
+
+
 .container > header {
     margin: 0 auto;
     padding: 1em;
@@ -10,6 +36,10 @@
     margin: 0;
 }
 
+.lobbyTitle{
+    color: #ffffff ;
+}
+
 .wrapper {
     line-height: 1.5em;
     margin: 0 auto;
@@ -19,20 +49,20 @@
     overflow: hidden;
 }
 
-table {
+.tableLobby {
     border-collapse: collapse;
     width: 100%;
     background: #fff;
 }
 
 th {
-    background-color: #326295;
+    background-color: #24485e;
     font-weight: bold;
     color: #fff;
     white-space: nowrap;
 }
 
-td,
+.tdLobby,
 th {
     padding: 1em 1.5em;
     text-align: left;

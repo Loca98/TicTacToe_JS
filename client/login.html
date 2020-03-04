@@ -4,78 +4,80 @@
 
 <head>
     <title>Tic Tac Toe</title>
-    <link rel="shortcut icon" type="image/x-icon" href="clapper.png" />
     <meta charset="UTF-8">
     <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
     <link rel="stylesheet" href="/client/login.css">
     <link rel="stylesheet" href="/client/lobby.css">
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js'></script>
-</head>
+     <link rel="stylesheet" href="/client/game.css">
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+     <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js'></script>
+ </head>
 
-<body>
-<div class="form" id="loginDiv">
+ <body>
+ <div class="form" id="loginDiv" >
 
-    <ul class="tab-group">
-        <li class="tab active"><a href="#signup">Sign Up</a></li>
-        <li class="tab"><a href="#login">Log In</a></li>
-    </ul>
+     <ul class="tab-group">
+         <li class="tab active"><a href="#signup">Sign Up</a></li>
+         <li class="tab"><a href="#login">Log In</a></li>
+     </ul>
 
-    <div class="tab-content">
-        <div id="signup">
-            <h1>Sign Up Tic Tac Toe</h1>
+     <div class="tab-content">
+         <div id="signup">
+             <h1 class = "h1Login">Sign Up Tic Tac Toe</h1>
 
-            <form action="/" method="get">
+             <form action="/" method="get">
+
+                  <div class="field-wrap">
+                      <label>
+                          Username<span class="req">*</span>
+                      </label>
+                      <input id="signUsername" type="text"required autocomplete="off"/>
+                  </div>
+
+                  <div class="field-wrap">
+                      <label>
+                          Set a Password<span class="req">*</span>
+                      </label>
+                      <input id="signPwd" type="password"required autocomplete="off"/>
+                  </div>
+
+                  <button id="btnSign" type="button" class="button button-block">Get Started</button>
+
+              </form>
+         </div>
+
+         <div id="login">
+             <h1 class = "h1Login">Welcome Back!</h1>
+
+             <form action="/" method="get">
 
                  <div class="field-wrap">
                      <label>
                          Username<span class="req">*</span>
                      </label>
-                     <input id="signUsername" type="text"required autocomplete="off"/>
+                     <input id="logUsername" type="username"required autocomplete="off"/>
                  </div>
 
                  <div class="field-wrap">
                      <label>
-                         Set a Password<span class="req">*</span>
+                         Password<span class="req">*</span>
                      </label>
-                     <input id="signPwd" type="password"required autocomplete="off"/>
+                     <input id="logPwd" type="password"required autocomplete="off"/>
                  </div>
-
-                 <button id="btnSign" type="button" class="button button-block"/>Get Started</button>
-
+                 <button id="btnLogin" type="button" class="button button-block"/>Log In</button>
              </form>
-
-        </div>
-
-        <div id="login">
-            <h1>Welcome Back!</h1>
-
-            <form action="/" method="get">
-
-                <div class="field-wrap">
-                    <label>
-                        Username<span class="req">*</span>
-                    </label>
-                    <input id="logUsername" type="username"required autocomplete="off"/>
-                </div>
-
-                <div class="field-wrap">
-                    <label>
-                        Password<span class="req">*</span>
-                    </label>
-                    <input id="logPwd" type="password"required autocomplete="off"/>
-                </div>
-                <button id="btnLogin" type="button" class="button button-block"/>Log In</button>
-            </form>
-        </div>
-    </div><!-- tab-content -->
+         </div>
+     </div><!-- tab-content -->
 </div> <!-- /form -->
 
 <div id="lobbyDiv" class="row" style="display:none;">
-        <div class="column" style="background-color:#aaa;">
+    <ul class="ulLobby">
+        <li class="liLobby" ><a onclick="location.reload();"class="aLobby"  id="logout">LOGOUT</a></li>
+    </ul>
+        <div class="column">
             <header>
-                <h1 style="text-align:center">SFIDA QUALCUNO</h1>
+                <h1 class="lobbyTitle" style="text-align:center">SFIDA QUALCUNO</h1>
             </header>
             <div class="column">
                 <div class="container">
@@ -90,15 +92,14 @@
             </div>
         </div>
 
-        <div class="column" style="background-color:#bbb;">
-
+        <div class="column">
             <header>
-                <h1 style="text-align:center">CLASSIFICA TIC TAC TOE</h1>
+                <h1 class="lobbyTitle" style="text-align:center">CLASSIFICA TIC TAC TOE</h1>
             </header>
             <div class="wrapper">
-                <table id ="ranking">
+                <table class = "tableLobby" id ="ranking">
                     <thead>
-                    <tr>
+                    <tr class = "trLobby">
                         <th>Rank</th>
                         <th>Name</th>
                         <th>Win</th>
@@ -113,10 +114,34 @@
             </div>
         </div>
 </div>
-</body>
 
+<div id="gameDiv" onload="insertText();" style="display:none;">
+
+    <h1 class="header">Tic Tac Toe</h1>
+    <h4 class="h4Game" id="avversario"></h4>
+        <table class="tableGame" id="field">
+            <tr>
+                <td class="cell" id="c0"></td>
+                <td class="cell" id="c1"></td>
+                <td class="cell" id="c2"></td>
+            </tr>
+            <tr>
+                <td class="cell" id="c3"></td>
+                <td class="cell" id="c4"></td>
+                <td class="cell" id="c5"></td>
+            </tr>
+            <tr>
+                <td class="cell" id="c6"></td>
+                <td class="cell" id="c7"></td>
+                <td class="cell" id="c8"></td>
+            </tr>
+        </table>
 </div>
+
 </body>
 
 <script src="/client/login.js"></script>
 <script src="/client/handler.js"></script>
+<script src="/client/game.js"></script>
+
+</html>
