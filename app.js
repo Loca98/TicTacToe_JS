@@ -235,7 +235,7 @@ io.on('connection', function(socket) { //quando si effettua una connessione eseg
     }
 
     //COMUNICA CLASSIFICA
-    function getRanking() { //TODO: POSSO USARE UNO STATUS PER INDICARE SE INVIARE A TUTTI
+    function getRanking() {
         connection.query("SELECT * FROM SCORE WHERE win != 0 OR draw != 0 OR defeat != 0" +
             " ORDER BY SCORE.win DESC, SCORE.draw DESC, SCORE.defeat ASC",function (error, rows, field) {
             if (error) {
