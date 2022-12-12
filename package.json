@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/cosmingugoasa/tictactoe_multiplayer#readme",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.2",
     "socket.io": "^2.3.0"
